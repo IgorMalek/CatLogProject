@@ -28,9 +28,14 @@ private:
 
 public:
   std::string name;
+  std::string breed;
+  std::string birthDate;
+  std::string furColor;
   std::vector<Event> history;
 
-  Cat(const std::string& n) : name(n) {}
+  Cat(const std::string& n, const std::string& b = "Unknown", const std::string& d = "Unknown", const std::string& c = "Unknown")
+    : name(n), breed(b), birthDate(d), furColor(c) {
+  }
 
   void addEvent(const std::string& date, const std::string& time, unsigned int type, double value, const std::string& notes = "");
   void generateReport() const;

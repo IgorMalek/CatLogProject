@@ -71,33 +71,77 @@ int getValidIntInput()
 
 void handleAddCat(LogManager& manager)
 {
-  string newName;
+  string newName, breed, dob, color;
+
   cout << "Enter name for the new cat: ";
   cin >> newName;
 
-  if (newName.length() > 0) {
-    manager.registerCat(newName);
-    cout << "Cat '" << newName << "' registered successfully." << endl;
+  if (newName.length() > 0)
+  {
+    cout << "Enter Breed (use_underscores): ";
+    cin >> breed;
+
+    cout << "Enter Date of Birth (YYYY-MM-DD): ";
+    cin >> dob;
+
+    cout << "Enter Fur Color (use_underscores): ";
+    cin >> color;
+
+    // Register with full details
+    manager.registerCat(newName, breed, dob, color);
+    cout << "Cat '" << newName << "' registered successfully with details." << endl;
   }
-  else {
+  else
+  {
     cout << "Invalid name." << endl;
   }
 }
 
-void handleLogEvent(LogManager& manager, int choice)
+Cat* selectCat(LogManager& manager)
 {
   manager.listCats();
-
   string catName;
   cout << "Enter cat name: ";
   cin >> catName;
-
   Cat* cat = manager.getCat(catName);
-  if (!cat)
-  {
+  if (!cat) {
     cout << "Error: Cat with this name does not exist." << endl;
-    return;
+    return nullptr;
   }
+  return cat;
+}
+
+void promptForEventData(string& date, string& time, double& value, string& notes)
+{
+  cout << "Enter date (YYYY-MM-DD) or 'today': ";
+  cin >> date;
+
+  if (date == "today" || date == "Today" || date == "t") 
+  {
+    date = getTodayDate();
+    cout << "-> Using date: " << date << endl;
+  }
+
+  cout << "Enter time (HH:MM:SS) or 'now': ";
+  cin >> time;
+
+  if (time == "now" || time == "Now" || time == "n") 
+  {
+    time = getCurrentTime();
+    cout << "-> Using time: " << time << endl;
+  }
+
+  cout << "Enter value (amount/weight/dose): ";
+  cin >> value;
+
+  cout << "Enter notes (one word or use_underscores): ";
+  cin >> notes;
+}
+
+void handleLogEvent(LogManager& manager, int choice)
+{
+  Cat* cat = selectCat(manager);
+  if (!cat) return;
 
   unsigned int eventType = TYPE_NONE;
   if (choice == FEED_EVENT) eventType = TYPE_FEED;
@@ -107,51 +151,27 @@ void handleLogEvent(LogManager& manager, int choice)
   string inputDate, inputTime, notes;
   double value;
 
-  cout << "Enter date (YYYY-MM-DD) or 'today': ";
-  cin >> inputDate;
-
-  if (inputDate == "today" || inputDate == "Today" || inputDate == "t") {
-    inputDate = getTodayDate();
-    cout << "-> Using date: " << inputDate << endl;
-  }
-
-  cout << "Enter time (HH:MM:SS) or 'now': ";
-  cin >> inputTime;
-
-  if (inputTime == "now" || inputTime == "Now" || inputTime == "n") {
-    inputTime = getCurrentTime();
-    cout << "-> Using time: " << inputTime << endl;
-  }
-
-  cout << "Enter value (amount/weight/dose): ";
-  cin >> value;
-
-  cout << "Enter notes (one word or use_underscores): ";
-  cin >> notes;
+  promptForEventData(inputDate, inputTime, value, notes);
 
   cat->addEvent(inputDate, inputTime, eventType, value, notes);
-  cout << "Event added for " << catName << "!" << endl;
+  cout << "Event added for " << cat->name << "!" << endl;
 }
 
 void handleReport(LogManager& manager)
 {
-  manager.listCats();
-  string catName;
-  cout << "Enter cat name for report: ";
-  cin >> catName;
-
-  if (Cat* cat = manager.getCat(catName))
+  if (Cat* cat = selectCat(manager))
+  {
     cat->generateReport();
-  else
-    cout << "Error: Cat with this name does not exist." << endl;
+  }
 }
 
 int main()
 {
   LogManager manager;
 
-  manager.registerCat("Tygrysek");
-  manager.registerCat("Puszek");
+  manager.registerCat("Satoru", "British_Shorthair", "2022-05-20", "Black");
+  manager.registerCat("MeiMei", "Persian_Longhair", "2023-08-15", "Greyish");
+
   manager.loadData();
 
   bool running = true;

@@ -23,10 +23,10 @@ void Cat::addEvent(const std::string& date, const std::string& time, unsigned in
 void Cat::displayStatistics() const
 {
   double totalFood = 0.0;
-  int feedCount = 0; // To calculate average
+  int feedCount = 0;
 
   double latestWeight = 0.0;
-  double firstWeight = 0.0; // To calculate change
+  double firstWeight = 0.0;
   bool firstWeightFound = false;
 
   int medsCount = 0;
@@ -95,13 +95,14 @@ void Cat::displayRecentEvents() const
 
 void Cat::generateReport() const
 {
-  if (history.empty())
+  if (history.empty() && breed == "Unknown")
   {
     std::cout << "No historical data for cat " << name << "." << std::endl;
     return;
   }
 
   std::cout << "\n--- REPORT FOR CAT: " << name << " ---" << std::endl;
+  std::cout << "Breed: " << breed << " | Born: " << birthDate << " | Color: " << furColor << std::endl;
   std::cout << "Number of recorded events: " << history.size() << std::endl;
 
   displayStatistics();

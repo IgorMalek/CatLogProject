@@ -3,11 +3,11 @@
 #include <fstream>
 #include <sstream>
 
-void LogManager::registerCat(const std::string& name)
+void LogManager::registerCat(const std::string& name, const std::string& breed, const std::string& dob, const std::string& color)
 {
   if (cats.find(name) == cats.end())
   {
-    cats.emplace(name, Cat(name));
+    cats.emplace(name, Cat(name, breed, dob, color));
   }
 }
 
@@ -36,8 +36,29 @@ void LogManager::listCats() const
 
 void LogManager::saveData() const
 {
+  // 1. SAVE CAT DETAILS
+  std::ofstream regFile(detailsFile);
+  if (regFile.is_open())
+  {
+    regFile << "Name;Breed;BirthDate;Color\n";
+    for (const auto& pair : cats)
+    {
+      regFile << pair.second.name << ";"
+        << pair.second.breed << ";"
+        << pair.second.birthDate << ";"
+        << pair.second.furColor << "\n";
+    }
+    regFile.close();
+    std::cout << "Saved cat details to " << detailsFile << std::endl;
+  }
+  else
+  {
+    std::cerr << "Error: Cannot open file " << detailsFile << " for writing!" << std::endl;
+  }
+
+  // 2. SAVE EVENTS
   std::ofstream file(dataFile);
-  if (!file.is_open()) 
+  if (!file.is_open())
   {
     std::cerr << "Error: Cannot open file " << dataFile << " for writing!" << std::endl;
     return;
@@ -45,7 +66,7 @@ void LogManager::saveData() const
 
   file << "CatName;Date;Time;TypeMask;Value;Notes\n";
 
-  for (const auto& catPair : cats) 
+  for (const auto& catPair : cats)
   {
     const std::string& catName = catPair.first;
     for (const auto& event : catPair.second.history)
@@ -58,28 +79,49 @@ void LogManager::saveData() const
         << event.notes << "\n";
     }
   }
-  std::cout << "Saved " << cats.size() << " cats to file " << dataFile << std::endl;
+  std::cout << "Saved events to file " << dataFile << std::endl;
+  file.close();
+}
+
+void LogManager::loadRegistry()
+{
+  std::ifstream file(detailsFile);
+  if (!file.is_open()) return;
+
+  std::string line;
+  std::getline(file, line);
+
+  while (std::getline(file, line))
+  {
+    std::vector<std::string> segs = splitCSV(line);
+    if (segs.size() >= 4) 
+    {
+      registerCat(segs[0], segs[1], segs[2], segs[3]);
+    }
+  }
   file.close();
 }
 
 void LogManager::loadData()
 {
+  loadRegistry();
+
   std::ifstream file(dataFile);
-  if (!file.is_open()) 
+  if (!file.is_open())
   {
     std::cout << "Created new data file: " << dataFile << std::endl;
     return;
   }
 
   std::string line;
-  std::getline(file, line); // Skip header
+  std::getline(file, line);
 
   while (std::getline(file, line))
   {
     processLine(line);
   }
 
-  std::cout << "Loaded data from " << dataFile << " for " << cats.size() << " cats." << std::endl;
+  std::cout << "Loaded data. Total cats: " << cats.size() << "." << std::endl;
   file.close();
 }
 
