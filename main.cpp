@@ -1,6 +1,11 @@
-﻿#include <iostream>
+﻿#define _CRT_SECURE_NO_WARNINGS 
+
+#include <iostream>
 #include <string>
 #include <limits>
+#include <ctime>   
+#include <sstream> 
+#include <iomanip> 
 #include "LogManager.h"
 
 using namespace std;
@@ -10,7 +15,32 @@ using namespace std;
 #define MEDICINE_EVENT 3
 #define REPORT_EVENT 4
 #define LIST_EVENT 5
-#define EXIT_EVENT 6
+#define ADD_CAT_EVENT 6 
+#define EXIT_EVENT 7    
+
+string getTodayDate()
+{
+  time_t t = time(nullptr);
+  tm* now = localtime(&t);
+
+  stringstream ss;
+  ss << (now->tm_year + 1900) << "-"
+    << setfill('0') << setw(2) << (now->tm_mon + 1) << "-"
+    << setfill('0') << setw(2) << now->tm_mday;
+  return ss.str();
+}
+
+string getCurrentTime()
+{
+  time_t t = time(nullptr);
+  tm* now = localtime(&t);
+
+  stringstream ss;
+  ss << setfill('0') << setw(2) << now->tm_hour << ":"
+    << setfill('0') << setw(2) << now->tm_min << ":"
+    << setfill('0') << setw(2) << now->tm_sec;
+  return ss.str();
+}
 
 void displayMenu()
 {
@@ -20,7 +50,8 @@ void displayMenu()
   cout << "3. Log Medicine (MEDS)" << endl;
   cout << "4. Generate Report for Cat" << endl;
   cout << "5. List Registered Cats" << endl;
-  cout << "6. Exit and Save" << endl;
+  cout << "6. Register New Cat" << endl;
+  cout << "7. Exit and Save" << endl;
   cout << "---------------------------------" << endl;
   cout << "Select option: ";
 }
@@ -38,6 +69,21 @@ int getValidIntInput()
   return choice;
 }
 
+void handleAddCat(LogManager& manager)
+{
+  string newName;
+  cout << "Enter name for the new cat: ";
+  cin >> newName;
+
+  if (newName.length() > 0) {
+    manager.registerCat(newName);
+    cout << "Cat '" << newName << "' registered successfully." << endl;
+  }
+  else {
+    cout << "Invalid name." << endl;
+  }
+}
+
 void handleLogEvent(LogManager& manager, int choice)
 {
   manager.listCats();
@@ -47,7 +93,7 @@ void handleLogEvent(LogManager& manager, int choice)
   cin >> catName;
 
   Cat* cat = manager.getCat(catName);
-  if (!cat) 
+  if (!cat)
   {
     cout << "Error: Cat with this name does not exist." << endl;
     return;
@@ -61,10 +107,21 @@ void handleLogEvent(LogManager& manager, int choice)
   string inputDate, inputTime, notes;
   double value;
 
-  cout << "Enter date (YYYY-MM-DD): ";
+  cout << "Enter date (YYYY-MM-DD) or 'today': ";
   cin >> inputDate;
-  cout << "Enter time (HH:MM:SS): ";
+
+  if (inputDate == "today" || inputDate == "Today" || inputDate == "t") {
+    inputDate = getTodayDate();
+    cout << "-> Using date: " << inputDate << endl;
+  }
+
+  cout << "Enter time (HH:MM:SS) or 'now': ";
   cin >> inputTime;
+
+  if (inputTime == "now" || inputTime == "Now" || inputTime == "n") {
+    inputTime = getCurrentTime();
+    cout << "-> Using time: " << inputTime << endl;
+  }
 
   cout << "Enter value (amount/weight/dose): ";
   cin >> value;
@@ -83,12 +140,10 @@ void handleReport(LogManager& manager)
   cout << "Enter cat name for report: ";
   cin >> catName;
 
-  if (Cat* cat = manager.getCat(catName)) {
+  if (Cat* cat = manager.getCat(catName))
     cat->generateReport();
-  }
-  else {
+  else
     cout << "Error: Cat with this name does not exist." << endl;
-  }
 }
 
 int main()
@@ -119,6 +174,10 @@ int main()
 
     case LIST_EVENT:
       manager.listCats();
+      break;
+
+    case ADD_CAT_EVENT:
+      handleAddCat(manager);
       break;
 
     case EXIT_EVENT:

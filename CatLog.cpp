@@ -23,8 +23,12 @@ void Cat::addEvent(const std::string& date, const std::string& time, unsigned in
 void Cat::displayStatistics() const
 {
   double totalFood = 0.0;
-  int weightEntries = 0;
+  int feedCount = 0; // To calculate average
+
   double latestWeight = 0.0;
+  double firstWeight = 0.0; // To calculate change
+  bool firstWeightFound = false;
+
   int medsCount = 0;
 
   for (const auto& event : history)
@@ -32,17 +36,38 @@ void Cat::displayStatistics() const
     if (event.type & TYPE_FEED)
     {
       totalFood += event.value;
+      feedCount++;
     }
-    else if (event.type & TYPE_WEIGHT) 
+    else if (event.type & TYPE_WEIGHT)
     {
-      weightEntries++;
+      if (!firstWeightFound) {
+        firstWeight = event.value;
+        firstWeightFound = true;
+      }
       latestWeight = event.value;
     }
     else if (event.type & TYPE_MEDS) medsCount++;
   }
 
-  std::cout << "Total food amount (all time): " << totalFood << " g." << std::endl;
-  std::cout << "Latest recorded weight: " << (latestWeight > 0.0 ? std::to_string(latestWeight) + " kg" : "No data") << std::endl;
+  std::cout << "Total food amount (all time): " << totalFood << " g";
+  if (feedCount > 0) {
+    std::cout << " (Avg " << (totalFood / feedCount) << " g/meal)";
+  }
+  std::cout << std::endl;
+
+  std::cout << "Weight: ";
+  if (latestWeight > 0.0) {
+    std::cout << latestWeight << " kg";
+    if (firstWeightFound && firstWeight != latestWeight) {
+      double change = latestWeight - firstWeight;
+      std::cout << " (Change: " << (change > 0 ? "+" : "") << change << " kg)";
+    }
+  }
+  else {
+    std::cout << "No data";
+  }
+  std::cout << std::endl;
+
   std::cout << "Total medicine administrations: " << medsCount << std::endl;
 }
 
