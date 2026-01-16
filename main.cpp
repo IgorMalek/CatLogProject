@@ -1,22 +1,33 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS 
+#define NOMINMAX
 
+#include <Windows.h>
 #include <iostream>
 #include <string>
 #include <limits>
 #include <ctime>   
 #include <sstream> 
-#include <iomanip> 
+#include <iomanip>
+
 #include "LogManager.h"
 
 using namespace std;
 
-#define FEED_EVENT 1
-#define WEIGHT_EVENT 2
-#define MEDICINE_EVENT 3
-#define REPORT_EVENT 4
-#define LIST_EVENT 5
-#define ADD_CAT_EVENT 6 
-#define EXIT_EVENT 7    
+typedef enum {
+  FEED_EVENT = 1,
+  WEIGHT_EVENT,
+  MEDICINE_EVENT,
+  REPORT_EVENT,  
+  LIST_EVENT,  
+  ADD_CAT_EVENT,
+  EXIT_EVENT
+};
+
+void SetColor(int colorCode)
+{
+  HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+  SetConsoleTextAttribute(hConsole, colorCode);
+}
 
 string getTodayDate()
 {
@@ -44,6 +55,7 @@ string getCurrentTime()
 
 void displayMenu()
 {
+  SetColor(11);
   cout << "\n=== Cat Log ===" << endl;
   cout << "1. Log Feeding (FEED)" << endl;
   cout << "2. Log Weight (WEIGHT)" << endl;
@@ -54,6 +66,7 @@ void displayMenu()
   cout << "7. Exit and Save" << endl;
   cout << "---------------------------------" << endl;
   cout << "Select option: ";
+  SetColor(7);
 }
 
 int getValidIntInput()
@@ -99,9 +112,11 @@ void handleAddCat(LogManager& manager)
 
 Cat* selectCat(LogManager& manager)
 {
+  SetColor(14);
   manager.listCats();
   string catName;
   cout << "Enter cat name: ";
+  SetColor(7);
   cin >> catName;
   Cat* cat = manager.getCat(catName);
   if (!cat) {
