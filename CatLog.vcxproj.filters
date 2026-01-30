@@ -24,6 +24,9 @@
     <ClCompile Include="LogManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ApiHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatLog.h">
@@ -32,5 +35,12 @@
     <ClInclude Include="LogManager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="ApiHandler.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="secrets.json" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

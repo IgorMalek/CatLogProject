@@ -1,7 +1,11 @@
-﻿#include "CatLog.h"
+﻿#define NOMINMAX
+#include "CatLog.h"
+#include <Windows.h>
+#include <shellapi.h>
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <numeric>
 
 std::string getEventTypeString(unsigned int type) {
   if (type & TYPE_FEED) return "FEED";
@@ -22,48 +26,53 @@ void Cat::addEvent(const std::string& date, const std::string& time, unsigned in
 
 void Cat::displayStatistics() const
 {
-  double totalFood = 0.0;
-  int feedCount = 0;
-
-  double latestWeight = 0.0;
-  double firstWeight = 0.0;
-  bool firstWeightFound = false;
-
-  int medsCount = 0;
-
-  for (const auto& event : history)
-  {
-    if (event.type & TYPE_FEED)
+  double totalFood = std::accumulate(history.begin(), history.end(), 0.0,
+    [](double sum, const Event& e) 
     {
-      totalFood += event.value;
-      feedCount++;
-    }
-    else if (event.type & TYPE_WEIGHT)
+      return (e.type & TYPE_FEED) ? sum + e.value : sum;
+    });
+
+  long long feedCount = std::count_if(history.begin(), history.end(),
+    [](const Event& e) 
     {
-      if (!firstWeightFound) {
-        firstWeight = event.value;
-        firstWeightFound = true;
-      }
-      latestWeight = event.value;
-    }
-    else if (event.type & TYPE_MEDS) medsCount++;
-  }
+      return (e.type & TYPE_FEED);
+    });
+
+  long long medsCount = std::count_if(history.begin(), history.end(),
+    [](const Event& e) 
+    {
+      return (e.type & TYPE_MEDS);
+    });
+
+  auto isWeightEvent = [](const Event& e) { return (e.type & TYPE_WEIGHT); };
+
+  auto firstWeightIt = std::find_if(history.begin(), history.end(), isWeightEvent);
+
+  auto latestWeightIt = std::find_if(history.rbegin(), history.rend(), isWeightEvent);
 
   std::cout << "Total food amount (all time): " << totalFood << " g";
-  if (feedCount > 0) {
+  if (feedCount > 0) 
+  {
     std::cout << " (Avg " << (totalFood / feedCount) << " g/meal)";
   }
   std::cout << std::endl;
 
   std::cout << "Weight: ";
-  if (latestWeight > 0.0) {
-    std::cout << latestWeight << " kg";
-    if (firstWeightFound && firstWeight != latestWeight) {
-      double change = latestWeight - firstWeight;
+  if (latestWeightIt != history.rend())
+  {
+    double latestVal = latestWeightIt->value;
+    double firstVal = firstWeightIt->value;
+
+    std::cout << latestVal << " kg";
+
+    if (firstWeightIt != history.end() && firstVal != latestVal) 
+    {
+      double change = latestVal - firstVal;
       std::cout << " (Change: " << (change > 0 ? "+" : "") << change << " kg)";
     }
   }
-  else {
+  else 
+  {
     std::cout << "No data";
   }
   std::cout << std::endl;
@@ -93,20 +102,48 @@ void Cat::displayRecentEvents() const
   }
 }
 
-void Cat::generateReport() const
+void Cat::generateReport(std::ostream& os) const
 {
   if (history.empty() && breed == "Unknown")
   {
-    std::cout << "No historical data for cat " << name << "." << std::endl;
+    os << "No historical data for cat " << name << "." << std::endl;
     return;
   }
 
-  std::cout << "\n--- REPORT FOR CAT: " << name << " ---" << std::endl;
-  std::cout << "Breed: " << breed << " | Born: " << birthDate << " | Color: " << furColor << std::endl;
-  std::cout << "Number of recorded events: " << history.size() << std::endl;
+  os << "\n--- REPORT FOR CAT: " << name << " ---" << "\n"
+     << "Breed: " << breed << " | Born: " << birthDate << " | Color: " << furColor << "\n"
+     << "Number of recorded events: " << history.size() << "\n";
 
   displayStatistics();
   displayRecentEvents();
 
   std::cout << "--------------------------------------" << std::endl;
+}
+
+void Cat::viewPhoto(const std::string& apiKey) const
+{
+  std::string url = "https://cataas.com/cat";
+
+  if (furColor != "Unknown" && !furColor.empty())
+    url += "/" + furColor;
+  else
+    url += "?";
+
+  if (!apiKey.empty())
+  {
+    if (url.find('?') != std::string::npos) 
+    {
+      if (url.back() == '?')
+        url += "api_key=" + apiKey;
+      else
+        url += "&api_key=" + apiKey;
+    }
+    else 
+    {
+      url += "?api_key=" + apiKey;
+    }
+  }
+
+  std::cout << "Opening browser: " << url << " ..." << std::endl;
+  ShellExecuteA(0, 0, url.c_str(), 0, 0, SW_SHOW);
 }

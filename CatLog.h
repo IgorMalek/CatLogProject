@@ -32,11 +32,15 @@ public:
   std::string birthDate;
   std::string furColor;
   std::vector<Event> history;
+  
+  // overloading operator
+  friend std::ostream& operator<<(std::ostream& os, const Cat& cat);
 
   Cat(const std::string& n, const std::string& b = "Unknown", const std::string& d = "Unknown", const std::string& c = "Unknown")
     : name(n), breed(b), birthDate(d), furColor(c) {
   }
 
   void addEvent(const std::string& date, const std::string& time, unsigned int type, double value, const std::string& notes = "");
-  void generateReport() const;
+  void generateReport(std::ostream& os) const;
+  void viewPhoto(const std::string& apiKey = "") const;
 };

@@ -10,6 +10,7 @@
 #include <iomanip>
 
 #include "LogManager.h"
+#include "ApiHandler.h"
 
 using namespace std;
 
@@ -20,6 +21,7 @@ typedef enum {
   REPORT_EVENT,  
   LIST_EVENT,  
   ADD_CAT_EVENT,
+  VIEW_PHOTO_EVENT,
   EXIT_EVENT
 };
 
@@ -63,7 +65,8 @@ void displayMenu()
   cout << "4. Generate Report for Cat" << endl;
   cout << "5. List Registered Cats" << endl;
   cout << "6. Register New Cat" << endl;
-  cout << "7. Exit and Save" << endl;
+  cout << "7. View Cat Photo (Online)" << endl;
+  cout << "8. Exit and Save" << endl;
   cout << "---------------------------------" << endl;
   cout << "Select option: ";
   SetColor(7);
@@ -176,7 +179,7 @@ void handleReport(LogManager& manager)
 {
   if (Cat* cat = selectCat(manager))
   {
-    cat->generateReport();
+    cat->generateReport(std::cout);
   }
 }
 
@@ -185,7 +188,7 @@ int main()
   LogManager manager;
 
   manager.registerCat("Satoru", "British_Shorthair", "2022-05-20", "Black");
-  manager.registerCat("MeiMei", "Persian_Longhair", "2023-08-15", "Greyish");
+  manager.registerCat("MeiMei", "Persian_Longhair", "2023-08-15", "Grey");
 
   manager.loadData();
 
@@ -213,6 +216,14 @@ int main()
 
     case ADD_CAT_EVENT:
       handleAddCat(manager);
+      break;
+
+    case VIEW_PHOTO_EVENT:
+      if (Cat* cat = selectCat(manager))
+      {
+        string myApiKey = ApiHandler::getApiKey();
+        cat->viewPhoto(myApiKey);
+      }
       break;
 
     case EXIT_EVENT:
