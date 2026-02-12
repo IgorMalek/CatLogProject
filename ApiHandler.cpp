@@ -1,33 +1,28 @@
 #include "ApiHandler.h"
-#include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-std::string ApiHandler::getApiKey() {
-  std::ifstream configFile("secrets.json");
-
-  if (!configFile.is_open()) {
-    std::cerr << "ERROR: File secrets.json has not been found.\n"
-      << "Please create 'secrets.json' with the following format:\n"
-      << "{\n  \"apiKey\": \"YOUR_KEY_HERE\"\n}\n";
-    return "";
-  }
-
+std::string ApiHandler::ExtractKey(std::istream& stream) {
   json configJson;
   try {
-    configFile >> configJson;
+    stream >> configJson;
     if (configJson.contains("apiKey")) {
       return configJson["apiKey"];
     }
-    else {
-      std::cerr << "ERROR: 'apiKey' field missing in secrets.json.\n";
-      return "";
-    }
   }
-  catch (json::parse_error& e) {
-    std::cerr << "ERROR: Failed to parse secrets.json: " << e.what() << "\n";
+  catch (const json::parse_error&) {
     return "";
   }
+  return "";
+}
+
+std::string ApiHandler::GetApiKey(const std::string& filename) {
+  std::ifstream configFile(filename);
+  if (!configFile.is_open()) {
+    return "";
+  }
+
+  return ExtractKey(configFile);
 }

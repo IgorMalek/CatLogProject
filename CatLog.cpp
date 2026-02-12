@@ -45,9 +45,7 @@ void Cat::displayStatistics() const
     });
 
   auto isWeightEvent = [](const Event& e) { return (e.type & TYPE_WEIGHT); };
-
   auto firstWeightIt = std::find_if(history.begin(), history.end(), isWeightEvent);
-
   auto latestWeightIt = std::find_if(history.rbegin(), history.rend(), isWeightEvent);
 
   std::cout << "Total food amount (all time): " << totalFood << " g";
