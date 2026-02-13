@@ -11,6 +11,7 @@
 
 #include "LogManager.h"
 #include "ApiHandler.h"
+#include "AgeCalculator.h"
 
 using namespace std;
 
@@ -22,6 +23,7 @@ typedef enum {
   LIST_EVENT,  
   ADD_CAT_EVENT,
   VIEW_PHOTO_EVENT,
+  AGE_REPORT_EVENT,
   EXIT_EVENT
 };
 
@@ -58,17 +60,18 @@ string getCurrentTime()
 void displayMenu()
 {
   SetColor(11);
-  cout << "\n=== Cat Log ===" << endl;
-  cout << "1. Log Feeding (FEED)" << endl;
-  cout << "2. Log Weight (WEIGHT)" << endl;
-  cout << "3. Log Medicine (MEDS)" << endl;
-  cout << "4. Generate Report for Cat" << endl;
-  cout << "5. List Registered Cats" << endl;
-  cout << "6. Register New Cat" << endl;
-  cout << "7. View Cat Photo (Online)" << endl;
-  cout << "8. Exit and Save" << endl;
-  cout << "---------------------------------" << endl;
-  cout << "Select option: ";
+  std::cout << "\n=== Cat Log ===" << std::endl;
+  std::cout << "1. Log Feeding" << std::endl;
+  std::cout << "2. Log Weight" << std::endl;
+  std::cout << "3. Log Medicine" << std::endl;
+  std::cout << "4. Generate Report for Cat" << std::endl;
+  std::cout << "5. List Registered Cats" << std::endl;
+  std::cout << "6. Register New Cat" << std::endl;
+  std::cout << "7. View Cat Photo (Online)" << std::endl;
+  std::cout << "8. Cat Age Report" << std::endl;
+  std::cout << "9. Exit and Save" << std::endl;
+  std::cout << "---------------------------------" << std::endl;
+  std::cout << "Select option: ";
   SetColor(7);
 }
 
@@ -221,9 +224,13 @@ int main()
     case VIEW_PHOTO_EVENT:
       if (Cat* cat = selectCat(manager))
       {
-        string myApiKey = ApiHandler::getApiKey();
+        string myApiKey = ApiHandler::GetApiKey();
         cat->viewPhoto(myApiKey);
       }
+      break;
+
+    case AGE_REPORT_EVENT:
+      AgeCalculator::PrintAgeReport(manager.getAllCats());
       break;
 
     case EXIT_EVENT:

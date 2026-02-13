@@ -2,7 +2,8 @@
 #include "CatLog.h" 
 #include "LogManager.h"
 
-TEST(CatTests, ConstructorSetsFieldsCorrectly) {
+TEST(CatTests, ConstructorSetsFieldsCorrectly) 
+{
   Cat myCat("Satoru", "British_Shorthair", "2022-05-20", "Black");
 
   EXPECT_EQ(myCat.name, "Satoru");
@@ -11,7 +12,8 @@ TEST(CatTests, ConstructorSetsFieldsCorrectly) {
   EXPECT_TRUE(myCat.history.empty());
 }
 
-TEST(CatTests, AddEventIncreasesHistory) {
+TEST(CatTests, AddEventIncreasesHistory) 
+{
   Cat myCat("MeiMei");
 
   myCat.addEvent("2023-01-01", "12:00", TYPE_FEED, 85.5, "Tuna");
@@ -22,7 +24,8 @@ TEST(CatTests, AddEventIncreasesHistory) {
   EXPECT_EQ(myCat.history[0].notes, "Tuna");
 }
 
-TEST(ManagerTests, RegisterAndGetCat) {
+TEST(ManagerTests, RegisterAndGetCat) 
+{
   LogManager manager;
   manager.registerCat("TestCat", "Unknown", "2020-01-01", "White");
 
@@ -33,7 +36,8 @@ TEST(ManagerTests, RegisterAndGetCat) {
 }
 
 
-TEST(ManagerTests, GetInvalidCatReturnsNull) {
+TEST(ManagerTests, GetInvalidCatReturnsNull) 
+{
   LogManager manager;
   Cat* ghostCat = manager.getCat("Ghost");
 
@@ -41,7 +45,8 @@ TEST(ManagerTests, GetInvalidCatReturnsNull) {
 }
 
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

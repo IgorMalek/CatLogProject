@@ -27,16 +27,22 @@
     <ClCompile Include="ApiHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AgeCalculator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CatLog.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LogManager.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="AgeCalculator.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ApiHandler.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CatLog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LogManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -22,4 +22,5 @@ public:
   void saveData() const;
   Cat* getCat(const std::string& name);
   void listCats() const;
+  const std::map<std::string, Cat>& getAllCats() const { return cats; }
 };

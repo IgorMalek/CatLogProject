@@ -149,3 +149,4 @@ x64/Debug/CatLog_Tests.pdb
 x64/Debug/CatLog_Tests.exe
 CatLog_Tests/CatLog_Tests.vcxproj.user
 CatLog/
+CatLog_Tests/x64/Debug/CatLog_Tests.Build.CppClean.log

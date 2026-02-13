@@ -4,23 +4,29 @@
 
 using json = nlohmann::json;
 
-std::string ApiHandler::ExtractKey(std::istream& stream) {
+std::string ApiHandler::ExtractKey(std::istream& stream) 
+{
   json configJson;
-  try {
+  try 
+  {
     stream >> configJson;
-    if (configJson.contains("apiKey")) {
+    if (configJson.contains("apiKey")) 
+    {
       return configJson["apiKey"];
     }
   }
-  catch (const json::parse_error&) {
+  catch (const json::parse_error&) 
+  {
     return "";
   }
   return "";
 }
 
-std::string ApiHandler::GetApiKey(const std::string& filename) {
+std::string ApiHandler::GetApiKey(const std::string& filename) 
+{
   std::ifstream configFile(filename);
-  if (!configFile.is_open()) {
+  if (!configFile.is_open()) 
+  {
     return "";
   }
 
