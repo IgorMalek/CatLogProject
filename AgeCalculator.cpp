@@ -4,32 +4,68 @@
 #include <algorithm>
 #include <chrono>
 #include <iomanip>
+#include <array>
 
-int AgeCalculator::ConvertToHumanYears(int realYears) {
-  if (realYears <= 0) return 0;
-  if (realYears == 1) return 15;
-  if (realYears == 2) return 24;
-  return 24 + (realYears - 2) * 4;
+int AgeCalculator::ConvertToHumanYears(int realYears) 
+{
+  constexpr std::array<int, 3> baseAges{ 0, 15, 24 };
+
+  constexpr int kMaxBaseIndex{ 2 };
+  constexpr int kYearlyIncrement{ 4 };
+
+  if (realYears > kMaxBaseIndex) [[likely]] 
+  {
+    const int extraYears{ realYears - kMaxBaseIndex };
+    return baseAges.at(kMaxBaseIndex) + (extraYears * kYearlyIncrement);
+  }
+
+  if (realYears >= 0) 
+  {
+    return baseAges.at(static_cast<size_t>(realYears));
+  }
+
+  return baseAges.at(0);
 }
 
-int AgeCalculator::CalculateRealAge(const std::string& birthDate)
+int AgeCalculator::CalculateRealAge(const std::string& birthDate) 
 {
-  if (birthDate == "Unknown" || birthDate.length() < 4) return -1;
-
-  try
+  try 
   {
-    int birthYear = std::stoi(birthDate.substr(0, 4));
+    if (birthDate == "Unknown" || birthDate.length() < 4) [[unlikely]] 
+    {
+      throw std::invalid_argument{ "Invalid birth date format provided." };
+    }
 
-    auto now = std::chrono::system_clock::now();
-    std::time_t t = std::chrono::system_clock::to_time_t(now);
+    const int birthYear{ std::stoi(birthDate.substr(0, 4)) };
 
-    tm nowTm;
-    localtime_s(&nowTm, &t);
-    int currentYear = nowTm.tm_year + 1900;
+    const auto now{ std::chrono::system_clock::now() };
+    const auto days{ std::chrono::floor<std::chrono::days>(now) };
+    const std::chrono::year_month_day current_date{ std::chrono::year_month_day{days} };
+
+    const int currentYear{ static_cast<int>(current_date.year()) };
+
+    if (birthYear > currentYear) [[unlikely]] 
+    {
+      throw std::out_of_range{ "Birth year is in the future." };
+    }
 
     return currentYear - birthYear;
   }
-  catch (...) { return -1; }
+  catch (const std::invalid_argument& e) 
+  {
+    std::cerr << "[Validation Error] " << e.what() << std::endl;
+    return -1;
+  }
+  catch (const std::out_of_range& e) 
+  {
+    std::cerr << "[Range Error] " << e.what() << std::endl;
+    return -1;
+  }
+  catch (const std::exception& e)
+  {
+    std::cerr << "[Unexpected Error] " << e.what() << std::endl;
+    return -1;
+  }
 }
 
 std::vector<CatAgeInfo> AgeCalculator::GenerateReportData(const std::map<std::string, Cat>& cats)
@@ -63,7 +99,8 @@ void AgeCalculator::PrintReportTable(const std::vector<CatAgeInfo>& reportData)
 {
   namespace ranges = std::ranges;
 
-  if (reportData.empty()) {
+  if (reportData.empty()) 
+  {
     std::cout << "No cats with valid birth dates found.\n";
     return;
   }
@@ -74,7 +111,8 @@ void AgeCalculator::PrintReportTable(const std::vector<CatAgeInfo>& reportData)
     << std::setw(15) << "Human Years" << "\n";
   std::cout << "---------------------------------------------\n";
 
-  ranges::for_each(reportData, [](const CatAgeInfo& info) {
+  ranges::for_each(reportData, [](const CatAgeInfo& info) 
+    {
     std::cout << std::left << std::setw(15) << info.name
       << info.realYears << " years  "
       << "->  " << info.humanYears << " years old\n";

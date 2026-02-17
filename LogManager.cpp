@@ -129,7 +129,8 @@ void LogManager::processLine(const std::string& line)
 {
   std::vector<std::string> segments = splitCSV(line);
 
-  if (segments.size() != 6) return;
+  if (segments.size() != 6) 
+    return;
 
   try
   {

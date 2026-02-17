@@ -8,12 +8,21 @@
 #include <ctime>   
 #include <sstream> 
 #include <iomanip>
+#include <cstdlib>
 
 #include "LogManager.h"
 #include "ApiHandler.h"
 #include "AgeCalculator.h"
 
 using namespace std;
+
+namespace Color {
+  constexpr int Cyan{ 11 };
+  constexpr int Yellow{ 14 };
+  constexpr int White{ 7 };
+  constexpr int Red{ 12 };
+  constexpr int Green{ 10 };
+} // namespace Color
 
 typedef enum {
   FEED_EVENT = 1,
@@ -59,7 +68,7 @@ string getCurrentTime()
 
 void displayMenu()
 {
-  SetColor(11);
+  SetColor(Color::Cyan);
   std::cout << "\n=== Cat Log ===" << std::endl;
   std::cout << "1. Log Feeding" << std::endl;
   std::cout << "2. Log Weight" << std::endl;
@@ -72,7 +81,7 @@ void displayMenu()
   std::cout << "9. Exit and Save" << std::endl;
   std::cout << "---------------------------------" << std::endl;
   std::cout << "Select option: ";
-  SetColor(7);
+  SetColor(Color::White);
 }
 
 int getValidIntInput()
@@ -83,7 +92,7 @@ int getValidIntInput()
   {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    return -1;
+    return EXIT_FAILURE;
   }
   return choice;
 }
@@ -118,11 +127,11 @@ void handleAddCat(LogManager& manager)
 
 Cat* selectCat(LogManager& manager)
 {
-  SetColor(14);
+  SetColor(Color::Yellow);
   manager.listCats();
   string catName;
   cout << "Enter cat name: ";
-  SetColor(7);
+  SetColor(Color::White);
   cin >> catName;
   Cat* cat = manager.getCat(catName);
   if (!cat) {
@@ -245,5 +254,5 @@ int main()
     }
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }
